@@ -1,7 +1,14 @@
 const express = require("express");
+const cors = require("cors");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
+
+var corsOptions = {
+  origin: "http://localhost:3000",
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
@@ -103,9 +110,27 @@ app.put("/feedback", (request, response) => {
 });
 
 app.delete("/feedback", (request, response) => {
-  response.json({
-    message: "delete Stella voda endpoint",
-  });
+  console.log("In delete feedback... ");
+  console.log(request.body);
+  let db = new sqlite3.Database("db/feedbacknew.db");
+
+  db.run(
+    "delete from feedback where id = ?",
+    [parseInt(request.body.id)],
+    (err) => {
+      if (err) {
+        response.json({
+          message: err.message,
+        });
+      } else {
+        response.json({
+          message: "deleted successfully",
+        });
+      }
+    }
+  );
+
+  db.close();
 });
 
 //PORT number - 5001
